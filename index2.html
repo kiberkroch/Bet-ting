@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark light">
+<title>Value Calculator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Bebas+Neue&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── THEMES ── */
+  :root {
+    --bg:         #0f0f0f;
+    --surface:    #1a1a1a;
+    --surface2:   #111111;
+    --border:     #2a2a2a;
+    --border2:    #333333;
+    --text:       #ffffff;
+    --text-muted: #888888;
+    --text-dim:   #999999;
+    --btn-bg:     #081a30;
+    --btn-border: #0d2a4a;
+    --input-bg:   #1a1a1a;
+  }
+
+  [data-theme="light"] {
+    --bg:         #f5f5f5;
+    --surface:    #ffffff;
+    --surface2:   #f0f0f0;
+    --border:     #dddddd;
+    --border2:    #cccccc;
+    --text:       #111111;
+    --text-muted: #666666;
+    --text-dim:   #888888;
+    --btn-bg:     #081a30;
+    --btn-border: #0d2a4a;
+    --input-bg:   #ffffff;
+  }
+
+  [data-theme="grey"] {
+    --bg:         #2e2e2e;
+    --surface:    #3a3a3a;
+    --surface2:   #333333;
+    --border:     #4a4a4a;
+    --border2:    #555555;
+    --text:       #eeeeee;
+    --text-muted: #aaaaaa;
+    --text-dim:   #bbbbbb;
+    --btn-bg:     #1a3a5a;
+    --btn-border: #2a4a6a;
+    --input-bg:   #3a3a3a;
+  }
+
+  html, body {
+    background: var(--bg) !important;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    height: 100%; min-height: 100vh;
+    -webkit-text-size-adjust: 100%;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .page { min-height: 100vh; display: flex; flex-direction: column; padding: 20px; }
+
+  /* TOP BAR */
+  .top-bar {
+    display: flex; align-items: center; justify-content: center;
+    gap: 12px; padding: 4px 0 0; margin-bottom: 4px;
+    flex-wrap: wrap;
+  }
+
+  .mode-group { display: flex; align-items: center; gap: 8px; }
+  .mode-lbl { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+  .mode-btn {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted);
+    background: none; border: none; cursor: pointer;
+    padding: 2px 0; border-bottom: 1px solid transparent; transition: all 0.15s;
+  }
+  .mode-btn.active { color: var(--text); border-bottom-color: var(--border2); }
+  .mode-sep { color: var(--border2); font-size: 9px; }
+
+  /* THEME SWITCHER */
+  .theme-group { display: flex; align-items: center; gap: 6px; }
+  .theme-lbl { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+  .theme-dot {
+    width: 16px; height: 16px; border-radius: 50%; cursor: pointer;
+    border: 2px solid transparent; transition: border-color 0.15s;
+  }
+  .theme-dot.active { border-color: var(--text); }
+  .theme-dot.dark  { background: #0f0f0f; box-shadow: inset 0 0 0 1px #444; }
+  .theme-dot.light { background: #f5f5f5; box-shadow: inset 0 0 0 1px #ccc; }
+  .theme-dot.grey  { background: #2e2e2e; box-shadow: inset 0 0 0 1px #555; }
+
+  /* CENTER */
+  .center { flex: 1; display: flex; align-items: center; justify-content: center; }
+  .form-wrap { width: 100%; max-width: 400px; text-align: center; }
+
+  .pinnacle-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .pin-field { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .pin-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+
+  input[type="number"] {
+    background: var(--input-bg); border: 1px solid var(--border2); color: var(--text);
+    font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700;
+    padding: 9px 10px; width: 100%; outline: none; text-align: center;
+    transition: border-color 0.15s, background 0.2s; -moz-appearance: textfield;
+    -webkit-appearance: none; border-radius: 0;
+  }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+  input[type="number"]:focus { border-color: #4a6a8a; }
+
+  .section-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 7px; }
+  .work-block { margin-bottom: 16px; }
+  .work-block input { font-size: 22px; padding: 11px 16px; width: 100%; }
+
+  .btn {
+    width: 100%; background: var(--btn-bg); color: #fff;
+    font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 3px;
+    border: 1px solid var(--btn-border); padding: 13px; cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    border-radius: 0; -webkit-appearance: none;
+  }
+  .btn:hover { filter: brightness(1.2); }
+  .btn:active { transform: scale(0.98); }
+
+  .error { color: #ff3b3b; font-size: 11px; margin-bottom: 12px; display: none; }
+
+  /* RESULTS */
+  .results {
+    display: none; background: var(--surface); border: 1px solid var(--border);
+    padding: 14px; margin-top: 16px; animation: fadeIn 0.3s ease;
+    transition: background 0.2s;
+  }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+  .results.visible { display: block; }
+
+  .res-toprow { display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .res-meta { display: flex; flex-direction: column; align-items: center; flex: 1; }
+  .res-meta-label { font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 2px; }
+  .res-meta-value { font-size: 13px; font-weight: 700; color: var(--text-dim); }
+
+  .res-cols { display: flex; gap: 6px; margin-bottom: 12px; }
+  .res-col { flex: 1; }
+  .res-col-header { font-size: 8px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); text-align: center; margin-bottom: 5px; }
+  .res-box { background: var(--surface2); border: 1px solid var(--border); padding: 8px 4px; text-align: center; }
+  .res-box-main { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.1; }
+  .res-box-sub { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+
+  .res-bottom { border-top: 1px solid var(--border); padding-top: 10px; }
+  .res-bottom-label { font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); text-align: center; margin-bottom: 6px; }
+  .res-edge-cols { display: flex; gap: 6px; }
+  .res-edge-col { flex: 1; }
+  .edge-box { padding: 10px 4px; font-size: 19px; font-weight: 700; text-align: center; border: 1px solid transparent; }
+
+  .verdict { margin-top: 10px; padding: 9px; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; text-align: center; }
+  .verdict.no { background: rgba(255,59,59,0.08); border: 1px solid #ff3b3b; color: #ff3b3b; }
+
+  .two-way { display: block; }
+  .three-way { display: none; }
+</style>
+</head>
+<body data-theme="dark">
+<div class="page">
+
+  <div class="top-bar">
+    <div class="mode-group">
+      <span class="mode-lbl">Режим:</span>
+      <button class="mode-btn active" onclick="setMode(2)">Обычный</button>
+      <span class="mode-sep">или</span>
+      <button class="mode-btn" onclick="setMode(3)">Расширенный</button>
+    </div>
+    <div class="theme-group">
+      <span class="theme-lbl">Тема:</span>
+      <div class="theme-dot dark active" onclick="setTheme('dark')" title="Тёмная"></div>
+      <div class="theme-dot grey" onclick="setTheme('grey')" title="Серая"></div>
+      <div class="theme-dot light" onclick="setTheme('light')" title="Светлая"></div>
+    </div>
+  </div>
+
+  <div class="center">
+    <div class="form-wrap">
+
+      <div class="two-way">
+        <div class="pinnacle-row">
+          <div class="pin-field">
+            <div class="pin-label">Исход 1</div>
+            <input type="number" id="k2_1" placeholder="4.17" step="0.001" inputmode="decimal">
+          </div>
+          <div class="pin-field">
+            <div class="pin-label">Исход 2</div>
+            <input type="number" id="k2_2" placeholder="1.20" step="0.001" inputmode="decimal">
+          </div>
+        </div>
+      </div>
+
+      <div class="three-way">
+        <div class="pinnacle-row">
+          <div class="pin-field">
+            <div class="pin-label">Исход 1</div>
+            <input type="number" id="k3_1" placeholder="3.20" step="0.001" inputmode="decimal">
+          </div>
+          <div class="pin-field">
+            <div class="pin-label">Ничья</div>
+            <input type="number" id="k3_x" placeholder="3.50" step="0.001" inputmode="decimal">
+          </div>
+          <div class="pin-field">
+            <div class="pin-label">Исход 2</div>
+            <input type="number" id="k3_2" placeholder="2.10" step="0.001" inputmode="decimal">
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">Рабочий коэффициент</div>
+      <div class="work-block">
+        <input type="number" id="ksng" placeholder="5.25" step="0.001" inputmode="decimal">
+      </div>
+
+      <div class="error" id="error"></div>
+      <button class="btn" onclick="calculate()">РАССЧИТАТЬ</button>
+
+      <div class="results" id="results">
+        <div class="res-toprow">
+          <div class="res-meta">
+            <div class="res-meta-label">Маржа</div>
+            <div class="res-meta-value" id="r-margin"></div>
+          </div>
+          <div class="res-meta">
+            <div class="res-meta-label">K</div>
+            <div class="res-meta-value" id="r-k"></div>
+          </div>
+        </div>
+        <div class="res-cols" id="res-cols"></div>
+        <div class="res-bottom">
+          <div class="res-bottom-label">Доходность</div>
+          <div class="res-edge-cols" id="res-edge-cols"></div>
+        </div>
+        <div class="verdict" id="verdict" style="display:none"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentMode = 2;
+  let currentTheme = 'dark';
+
+  function setTheme(t) {
+    currentTheme = t;
+    document.body.setAttribute('data-theme', t);
+    document.querySelectorAll('.theme-dot').forEach(d => {
+      d.classList.toggle('active', d.classList.contains(t));
+    });
+    localStorage.setItem('theme', t);
+  }
+
+  // Восстановить тему
+  const saved = localStorage.getItem('theme');
+  if (saved) setTheme(saved);
+
+  function setMode(n) {
+    currentMode = n;
+    document.querySelectorAll('.mode-btn').forEach((b,i) => {
+      b.classList.toggle('active', (i===0&&n===2)||(i===1&&n===3));
+    });
+    document.querySelector('.two-way').style.display = n===2 ? 'block' : 'none';
+    document.querySelector('.three-way').style.display = n===3 ? 'block' : 'none';
+    document.getElementById('results').classList.remove('visible');
+  }
+
+  function findK(qs) {
+    const rawSum = qs.reduce((a, q) => a + q, 0);
+    if (Math.abs(rawSum - 1.0) < 1e-6) return 1.0;
+    let lo = 0.5, hi = 6.0;
+    for (let i = 0; i < 300; i++) {
+      const mid = (lo + hi) / 2;
+      const sum = qs.reduce((a, q) => a + Math.pow(q, mid), 0);
+      if (Math.abs(sum - 1.0) < 1e-10) return mid;
+      if (sum > 1.0) lo = mid; else hi = mid;
+    }
+    return (lo + hi) / 2;
+  }
+
+  function edgeColor(edge) {
+    if (edge >= 10) return { bg: '#0d3a0d', text: '#5fff9f', border: '#1a6a1a', shadow: '0 0 8px rgba(80,255,140,0.5)' };
+    if (edge >= 3)  return { bg: '#1a3a10', text: '#a0f060', border: '#2a6a1a', shadow: '0 0 6px rgba(120,220,60,0.4)' };
+    if (edge >= 0)  return { bg: '#2a3a10', text: '#d0e860', border: '#3a6a1a', shadow: '0 0 5px rgba(180,220,60,0.3)' };
+    if (edge >= -1) return { bg: '#3a3200', text: '#f0cc50', border: '#6a5200', shadow: '0 0 5px rgba(220,180,40,0.3)' };
+    return { bg: '#3a0d0d', text: '#ff6060', border: '#6a1a1a', shadow: '0 0 8px rgba(255,60,60,0.4)' };
+  }
+
+  function getVal(id) {
+    const raw = document.getElementById(id).value.replace(',', '.');
+    return parseFloat(raw);
+  }
+
+  function calculate() {
+    const ksng = getVal('ksng');
+    const err = document.getElementById('error');
+    let qs = [], labels = [];
+
+    if (currentMode === 2) {
+      const v1 = getVal('k2_1'), v2 = getVal('k2_2');
+      if (!v1||!v2||v1<1.001||v2<1.001||!ksng||ksng<1.001) {
+        err.textContent='Введите корректные коэффициенты';
+        err.style.display='block';
+        document.getElementById('results').classList.remove('visible');
+        return;
+      }
+      qs = [1/v1, 1/v2]; labels = ['Исход 1','Исход 2'];
+      document.getElementById('r-margin').textContent = ((qs[0]+qs[1]-1)*100).toFixed(2)+'%';
+    } else {
+      const v1 = getVal('k3_1'), vx = getVal('k3_x'), v2 = getVal('k3_2');
+      if (!v1||!vx||!v2||v1<1.001||vx<1.001||v2<1.001||!ksng||ksng<1.001) {
+        err.textContent='Введите корректные коэффициенты';
+        err.style.display='block';
+        document.getElementById('results').classList.remove('visible');
+        return;
+      }
+      qs = [1/v1, 1/vx, 1/v2]; labels = ['Исход 1','Ничья','Исход 2'];
+      document.getElementById('r-margin').textContent = ((qs[0]+qs[1]+qs[2]-1)*100).toFixed(2)+'%';
+    }
+
+    err.style.display = 'none';
+    const k = findK(qs);
+    const ps = qs.map(q => Math.pow(q, k));
+    document.getElementById('r-k').textContent = k.toFixed(4).replace('.', ',');
+
+    const colsEl = document.getElementById('res-cols');
+    colsEl.innerHTML = '';
+    ps.forEach((p, i) => {
+      const col = document.createElement('div');
+      col.className = 'res-col';
+      col.innerHTML = `
+        <div class="res-col-header">${labels[i]}</div>
+        <div class="res-box">
+          <div class="res-box-main">${(1/p).toFixed(2)}</div>
+          <div class="res-box-sub">${(p*100).toFixed(1)}%</div>
+        </div>`;
+      colsEl.appendChild(col);
+    });
+
+    const edgeColsEl = document.getElementById('res-edge-cols');
+    edgeColsEl.innerHTML = '';
+    let anyPositive = false;
+    ps.forEach((p) => {
+      const edge = (ksng * p - 1) * 100;
+      if (edge > 0) anyPositive = true;
+      const c = edgeColor(edge);
+      const sign = edge >= 0 ? '+' : '';
+      const col = document.createElement('div');
+      col.className = 'res-edge-col';
+      col.innerHTML = `<div class="edge-box" style="background:${c.bg};color:${c.text};border-color:${c.border};text-shadow:${c.shadow}">${sign}${edge.toFixed(1)}%</div>`;
+      edgeColsEl.appendChild(col);
+    });
+
+    const verdict = document.getElementById('verdict');
+    if (anyPositive) {
+      verdict.style.display = 'none';
+    } else {
+      verdict.textContent = '✗ NO VALUE';
+      verdict.className = 'verdict no';
+      verdict.style.display = 'block';
+    }
+
+    document.getElementById('results').classList.add('visible');
+  }
+
+  document.addEventListener('keydown', e => { if (e.key==='Enter') calculate(); });
+</script>
+</body>
+</html>
