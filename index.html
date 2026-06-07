@@ -3,85 +3,154 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="dark light">
 <title>Value Calculator</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Bebas+Neue&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  /* ── THEMES ── */
+  :root {
+    --bg:         #0f0f0f;
+    --surface:    #1a1a1a;
+    --surface2:   #111111;
+    --border:     #2a2a2a;
+    --border2:    #333333;
+    --text:       #ffffff;
+    --text-muted: #888888;
+    --text-dim:   #999999;
+    --btn-bg:     #081a30;
+    --btn-border: #0d2a4a;
+    --input-bg:   #1a1a1a;
+  }
+
+  [data-theme="light"] {
+    --bg:         #f5f5f5;
+    --surface:    #ffffff;
+    --surface2:   #f0f0f0;
+    --border:     #dddddd;
+    --border2:    #cccccc;
+    --text:       #111111;
+    --text-muted: #666666;
+    --text-dim:   #888888;
+    --btn-bg:     #081a30;
+    --btn-border: #0d2a4a;
+    --input-bg:   #ffffff;
+  }
+
+  [data-theme="grey"] {
+    --bg:         #2e2e2e;
+    --surface:    #3a3a3a;
+    --surface2:   #333333;
+    --border:     #4a4a4a;
+    --border2:    #555555;
+    --text:       #eeeeee;
+    --text-muted: #aaaaaa;
+    --text-dim:   #bbbbbb;
+    --btn-bg:     #1a3a5a;
+    --btn-border: #2a4a6a;
+    --input-bg:   #3a3a3a;
+  }
+
   html, body {
-    background: #0f0f0f !important;
-    color: #fff;
+    background: var(--bg) !important;
+    color: var(--text);
     font-family: 'JetBrains Mono', monospace;
     height: 100%; min-height: 100vh;
     -webkit-text-size-adjust: 100%;
+    transition: background 0.2s, color 0.2s;
   }
 
   .page { min-height: 100vh; display: flex; flex-direction: column; padding: 20px; }
 
-  .top-bar { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 4px 0 0; }
-  .mode-lbl { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #888; }
+  /* TOP BAR */
+  .top-bar {
+    display: flex; align-items: center; justify-content: center;
+    gap: 12px; padding: 4px 0 0; margin-bottom: 4px;
+    flex-wrap: wrap;
+  }
+
+  .mode-group { display: flex; align-items: center; gap: 8px; }
+  .mode-lbl { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
   .mode-btn {
     font-family: 'JetBrains Mono', monospace; font-size: 9px;
-    letter-spacing: 2px; text-transform: uppercase; color: #888;
+    letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted);
     background: none; border: none; cursor: pointer;
     padding: 2px 0; border-bottom: 1px solid transparent; transition: all 0.15s;
   }
-  .mode-btn.active { color: #ccc; border-bottom-color: #888; }
-  .mode-sep { color: #333; font-size: 9px; }
+  .mode-btn.active { color: var(--text); border-bottom-color: var(--border2); }
+  .mode-sep { color: var(--border2); font-size: 9px; }
 
+  /* THEME SWITCHER */
+  .theme-group { display: flex; align-items: center; gap: 6px; }
+  .theme-lbl { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+  .theme-dot {
+    width: 16px; height: 16px; border-radius: 50%; cursor: pointer;
+    border: 2px solid transparent; transition: border-color 0.15s;
+  }
+  .theme-dot.active { border-color: var(--text); }
+  .theme-dot.dark  { background: #0f0f0f; box-shadow: inset 0 0 0 1px #444; }
+  .theme-dot.light { background: #f5f5f5; box-shadow: inset 0 0 0 1px #ccc; }
+  .theme-dot.grey  { background: #2e2e2e; box-shadow: inset 0 0 0 1px #555; }
+
+  /* CENTER */
   .center { flex: 1; display: flex; align-items: center; justify-content: center; }
   .form-wrap { width: 100%; max-width: 400px; text-align: center; }
 
   .pinnacle-row { display: flex; gap: 8px; margin-bottom: 14px; }
   .pin-field { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-  .pin-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #888; }
+  .pin-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
 
   input[type="number"] {
-    background: #1a1a1a; border: 1px solid #333; color: #fff;
+    background: var(--input-bg); border: 1px solid var(--border2); color: var(--text);
     font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700;
     padding: 9px 10px; width: 100%; outline: none; text-align: center;
-    transition: border-color 0.15s; -moz-appearance: textfield;
+    transition: border-color 0.15s, background 0.2s; -moz-appearance: textfield;
     -webkit-appearance: none; border-radius: 0;
   }
   input[type="number"]::-webkit-outer-spin-button,
   input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
   input[type="number"]:focus { border-color: #4a6a8a; }
 
-  .section-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: #888; margin-bottom: 7px; }
+  .section-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 7px; }
   .work-block { margin-bottom: 16px; }
   .work-block input { font-size: 22px; padding: 11px 16px; width: 100%; }
 
   .btn {
-    width: 100%; background: #081a30; color: #fff;
+    width: 100%; background: var(--btn-bg); color: #fff;
     font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 3px;
-    border: 1px solid #0d2a4a; padding: 13px; cursor: pointer;
+    border: 1px solid var(--btn-border); padding: 13px; cursor: pointer;
     transition: background 0.15s, transform 0.1s;
     border-radius: 0; -webkit-appearance: none;
   }
-  .btn:hover { background: #0d2a4a; }
+  .btn:hover { filter: brightness(1.2); }
   .btn:active { transform: scale(0.98); }
 
   .error { color: #ff3b3b; font-size: 11px; margin-bottom: 12px; display: none; }
 
-  .results { display: none; background: #1a1a1a; border: 1px solid #2a2a2a; padding: 14px; margin-top: 16px; animation: fadeIn 0.3s ease; }
+  /* RESULTS */
+  .results {
+    display: none; background: var(--surface); border: 1px solid var(--border);
+    padding: 14px; margin-top: 16px; animation: fadeIn 0.3s ease;
+    transition: background 0.2s;
+  }
   @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
   .results.visible { display: block; }
 
-  .res-toprow { display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #2a2a2a; }
+  .res-toprow { display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
   .res-meta { display: flex; flex-direction: column; align-items: center; flex: 1; }
-  .res-meta-label { font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: #888; margin-bottom: 2px; }
-  .res-meta-value { font-size: 13px; font-weight: 700; color: #ccc; }
+  .res-meta-label { font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 2px; }
+  .res-meta-value { font-size: 13px; font-weight: 700; color: var(--text-dim); }
 
   .res-cols { display: flex; gap: 6px; margin-bottom: 12px; }
   .res-col { flex: 1; }
-  .res-col-header { font-size: 8px; letter-spacing: 1px; text-transform: uppercase; color: #999; text-align: center; margin-bottom: 5px; }
-  .res-box { background: #111; border: 1px solid #222; padding: 8px 4px; text-align: center; }
-  .res-box-main { font-size: 20px; font-weight: 700; color: #fff; line-height: 1.1; }
-  .res-box-sub { font-size: 10px; color: #999; margin-top: 2px; }
+  .res-col-header { font-size: 8px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); text-align: center; margin-bottom: 5px; }
+  .res-box { background: var(--surface2); border: 1px solid var(--border); padding: 8px 4px; text-align: center; }
+  .res-box-main { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.1; }
+  .res-box-sub { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
 
-  .res-bottom { border-top: 1px solid #2a2a2a; padding-top: 10px; }
-  .res-bottom-label { font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: #888; text-align: center; margin-bottom: 6px; }
+  .res-bottom { border-top: 1px solid var(--border); padding-top: 10px; }
+  .res-bottom-label { font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); text-align: center; margin-bottom: 6px; }
   .res-edge-cols { display: flex; gap: 6px; }
   .res-edge-col { flex: 1; }
   .edge-box { padding: 10px 4px; font-size: 19px; font-weight: 700; text-align: center; border: 1px solid transparent; }
@@ -93,14 +162,22 @@
   .three-way { display: none; }
 </style>
 </head>
-<body>
+<body data-theme="dark">
 <div class="page">
 
   <div class="top-bar">
-    <span class="mode-lbl">Режим:</span>
-    <button class="mode-btn active" onclick="setMode(2)">Обычный</button>
-    <span class="mode-sep">или</span>
-    <button class="mode-btn" onclick="setMode(3)">Расширенный</button>
+    <div class="mode-group">
+      <span class="mode-lbl">Режим:</span>
+      <button class="mode-btn active" onclick="setMode(2)">Обычный</button>
+      <span class="mode-sep">или</span>
+      <button class="mode-btn" onclick="setMode(3)">Расширенный</button>
+    </div>
+    <div class="theme-group">
+      <span class="theme-lbl">Тема:</span>
+      <div class="theme-dot dark active" onclick="setTheme('dark')" title="Тёмная"></div>
+      <div class="theme-dot grey" onclick="setTheme('grey')" title="Серая"></div>
+      <div class="theme-dot light" onclick="setTheme('light')" title="Светлая"></div>
+    </div>
   </div>
 
   <div class="center">
@@ -169,6 +246,20 @@
 
 <script>
   let currentMode = 2;
+  let currentTheme = 'dark';
+
+  function setTheme(t) {
+    currentTheme = t;
+    document.body.setAttribute('data-theme', t);
+    document.querySelectorAll('.theme-dot').forEach(d => {
+      d.classList.toggle('active', d.classList.contains(t));
+    });
+    localStorage.setItem('theme', t);
+  }
+
+  // Восстановить тему
+  const saved = localStorage.getItem('theme');
+  if (saved) setTheme(saved);
 
   function setMode(n) {
     currentMode = n;
