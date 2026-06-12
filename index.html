@@ -388,7 +388,7 @@
         const sign = edge >= 0 ? '+' : '';
         const col = document.createElement('div');
         col.className = 'res-edge-col';
-        col.innerHTML = <div class="edge-box" style="background:${c.bg};color:${c.text};border-color:${c.border};text-shadow:${c.shadow}">${sign}${edge.toFixed(1)}%</div>;
+        col.innerHTML = `<div class="edge-box" style="background:${c.bg};color:${c.text};border-color:${c.border};text-shadow:${c.shadow}">${sign}${edge.toFixed(1)}%</div>`;
         edgeColsEl.appendChild(col);
       });
 
