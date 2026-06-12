@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark light">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Value Calculator</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Bebas+Neue&display=swap');
@@ -160,6 +158,20 @@
   .verdict { margin-top: 10px; padding: 9px; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; text-align: center; }
   .verdict.no { background: rgba(255,59,59,0.08); border: 1px solid #ff3b3b; color: #ff3b3b; }
 
+  .btn-row { display: flex; gap: 8px; }
+  .btn-row .btn { flex: 1; }
+  .btn-clear {
+    background: transparent; color: var(--text-muted);
+    border: 1px solid var(--border2);
+    font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 3px;
+    padding: 13px; cursor: pointer; transition: all 0.15s; border-radius: 0;
+    -webkit-appearance: none; flex: 0 0 70px;
+  }
+  .btn-clear:hover { color: var(--text); border-color: var(--text-muted); }
+  .btn-clear:active { transform: scale(0.98); }
+
+  .res-edge-cols.hidden, .res-bottom-label.hidden { display: none; }
+
   .two-way { display: block; }
   .three-way { display: none; }
 </style>
@@ -221,7 +233,10 @@
       </div>
 
       <div class="error" id="error"></div>
-      <button class="btn" onclick="calculate()">РАССЧИТАТЬ</button>
+      <div class="btn-row">
+        <button class="btn-clear" onclick="clearAll()" title="Очистить">×</button>
+        <button class="btn" onclick="calculate()">РАССЧИТАТЬ</button>
+      </div>
 
       <div class="results" id="results">
         <div class="res-toprow">
@@ -236,7 +251,7 @@
         </div>
         <div class="res-cols" id="res-cols"></div>
         <div class="res-bottom">
-          <div class="res-bottom-label">Доходность</div>
+          <div class="res-bottom-label" id="res-bottom-label">Доходность</div>
           <div class="res-edge-cols" id="res-edge-cols"></div>
         </div>
         <div class="verdict" id="verdict" style="display:none"></div>
@@ -300,14 +315,23 @@
   }
 
   function calculate() {
+    const ksngRaw = document.getElementById('ksng').value;
+    const hasWorking = ksngRaw.trim() !== '';
     const ksng = getVal('ksng');
     const err = document.getElementById('error');
     let qs = [], labels = [];
 
+    if (hasWorking && (!ksng || ksng < 1.001)) {
+      err.textContent='Введите корректный рабочий коэффициент';
+      err.style.display='block';
+      document.getElementById('results').classList.remove('visible');
+      return;
+    }
+
     if (currentMode === 2) {
       const v1 = getVal('k2_1'), v2 = getVal('k2_2');
-      if (!v1||!v2||v1<1.001||v2<1.001||!ksng||ksng<1.001) {
-        err.textContent='Введите корректные коэффициенты';
+      if (!v1||!v2||v1<1.001||v2<1.001) {
+        err.textContent='Введите корректные коэффициенты Pinnacle';
         err.style.display='block';
         document.getElementById('results').classList.remove('visible');
         return;
@@ -316,8 +340,8 @@
       document.getElementById('r-margin').textContent = ((qs[0]+qs[1]-1)*100).toFixed(2)+'%';
     } else {
       const v1 = getVal('k3_1'), vx = getVal('k3_x'), v2 = getVal('k3_2');
-      if (!v1||!vx||!v2||v1<1.001||vx<1.001||v2<1.001||!ksng||ksng<1.001) {
-        err.textContent='Введите корректные коэффициенты';
+      if (!v1||!vx||!v2||v1<1.001||vx<1.001||v2<1.001) {
+        err.textContent='Введите корректные коэффициенты Pinnacle';
         err.style.display='block';
         document.getElementById('results').classList.remove('visible');
         return;
@@ -346,29 +370,48 @@
     });
 
     const edgeColsEl = document.getElementById('res-edge-cols');
-    edgeColsEl.innerHTML = '';
-    let anyPositive = false;
-    ps.forEach((p) => {
-      const edge = (ksng * p - 1) * 100;
-      if (edge > 0) anyPositive = true;
-      const c = edgeColor(edge);
-      const sign = edge >= 0 ? '+' : '';
-      const col = document.createElement('div');
-      col.className = 'res-edge-col';
-      col.innerHTML = `<div class="edge-box" style="background:${c.bg};color:${c.text};border-color:${c.border};text-shadow:${c.shadow}">${sign}${edge.toFixed(1)}%</div>`;
-      edgeColsEl.appendChild(col);
-    });
+    const edgeLabel = document.getElementById('res-bottom-label');
 
-    const verdict = document.getElementById('verdict');
-    if (anyPositive) {
-      verdict.style.display = 'none';
+    if (!hasWorking) {
+      edgeColsEl.classList.add('hidden');
+      edgeLabel.classList.add('hidden');
+      document.getElementById('verdict').style.display = 'none';
     } else {
-      verdict.textContent = '✗ NO VALUE';
-      verdict.className = 'verdict no';
-      verdict.style.display = 'block';
+      edgeColsEl.classList.remove('hidden');
+      edgeLabel.classList.remove('hidden');
+      edgeColsEl.innerHTML = '';
+      let anyPositive = false;
+      ps.forEach((p) => {
+        const edge = (ksng * p - 1) * 100;
+        if (edge > 0) anyPositive = true;
+        const c = edgeColor(edge);
+        const sign = edge >= 0 ? '+' : '';
+        const col = document.createElement('div');
+        col.className = 'res-edge-col';
+        col.innerHTML = <div class="edge-box" style="background:${c.bg};color:${c.text};border-color:${c.border};text-shadow:${c.shadow}">${sign}${edge.toFixed(1)}%</div>;
+        edgeColsEl.appendChild(col);
+      });
+
+      const verdict = document.getElementById('verdict');
+      if (anyPositive) {
+        verdict.style.display = 'none';
+      } else {
+        verdict.textContent = '✗ NO VALUE';
+        verdict.className = 'verdict no';
+        verdict.style.display = 'block';
+      }
     }
 
     document.getElementById('results').classList.add('visible');
+  }
+
+  function clearAll() {
+    ['k2_1','k2_2','k3_1','k3_x','k3_2','ksng'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('error').style.display = 'none';
+    document.getElementById('results').classList.remove('visible');
+    document.getElementById('k2_1').focus();
   }
 
   document.addEventListener('keydown', e => { if (e.key==='Enter') calculate(); });
