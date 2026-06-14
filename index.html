@@ -174,6 +174,11 @@
 
   .two-way { display: block; }
   .three-way { display: none; }
+  .reverse-way { display: none; }
+
+  /* Reverse mode result row for pinnacle coefficients */
+  .rev-pin-result { display: flex; gap: 6px; margin-bottom: 12px; }
+  .rev-pin-col { flex: 1; }
 </style>
 </head>
 <body data-theme="dark">
@@ -185,6 +190,8 @@
       <button class="mode-btn active" onclick="setMode(2)">Обычный</button>
       <span class="mode-sep">или</span>
       <button class="mode-btn" onclick="setMode(3)">Расширенный</button>
+      <span class="mode-sep">или</span>
+      <button class="mode-btn" onclick="setMode('rev')">Обратный</button>
     </div>
     <div class="theme-group">
       <span class="theme-lbl">Тема:</span>
@@ -227,8 +234,26 @@
         </div>
       </div>
 
-      <div class="section-label">Рабочий коэффициент</div>
-      <div class="work-block">
+      <!-- REVERSE MODE -->
+      <div class="reverse-way">
+        <div class="pinnacle-row">
+          <div class="pin-field">
+            <div class="pin-label">Ваш кэф</div>
+            <input type="number" id="rev_k" placeholder="5.27" step="0.001" inputmode="decimal">
+          </div>
+          <div class="pin-field">
+            <div class="pin-label">Маржа %</div>
+            <input type="number" id="rev_margin" placeholder="7.1" step="0.01" inputmode="decimal">
+          </div>
+          <div class="pin-field">
+            <div class="pin-label">Дох-ть %</div>
+            <input type="number" id="rev_edge" placeholder="5" step="0.01" inputmode="decimal">
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label" id="work-section-label">Рабочий коэффициент</div>
+      <div class="work-block" id="work-block">
         <input type="number" id="ksng" placeholder="5.25" step="0.001" inputmode="decimal">
       </div>
 
@@ -281,10 +306,22 @@
   function setMode(n) {
     currentMode = n;
     document.querySelectorAll('.mode-btn').forEach((b,i) => {
-      b.classList.toggle('active', (i===0&&n===2)||(i===1&&n===3));
+      b.classList.toggle('active', (i===0&&n===2)||(i===1&&n===3)||(i===2&&n==='rev'));
     });
     document.querySelector('.two-way').style.display = n===2 ? 'block' : 'none';
     document.querySelector('.three-way').style.display = n===3 ? 'block' : 'none';
+    document.querySelector('.reverse-way').style.display = n==='rev' ? 'block' : 'none';
+
+    const workLabel = document.getElementById('work-section-label');
+    const workBlock = document.getElementById('work-block');
+    if (n === 'rev') {
+      workLabel.style.display = 'none';
+      workBlock.style.display = 'none';
+    } else {
+      workLabel.style.display = 'block';
+      workBlock.style.display = 'block';
+    }
+
     document.getElementById('results').classList.remove('visible');
   }
 
@@ -315,6 +352,11 @@
   }
 
   function calculate() {
+    if (currentMode === 'rev') {
+      calculateReverse();
+      return;
+    }
+
     const ksngRaw = document.getElementById('ksng').value;
     const hasWorking = ksngRaw.trim() !== '';
     const ksng = getVal('ksng');
@@ -405,13 +447,120 @@
     document.getElementById('results').classList.add('visible');
   }
 
+  function calculateReverse() {
+    const err = document.getElementById('error');
+    const kWork = getVal('rev_k');
+    const marginPct = getVal('rev_margin');
+    const edgePct = getVal('rev_edge');
+
+    if (!kWork || kWork < 1.001 || isNaN(marginPct) || isNaN(edgePct)) {
+      err.textContent = 'Введите корректные значения';
+      err.style.display = 'block';
+      document.getElementById('results').classList.remove('visible');
+      return;
+    }
+
+    const margin = marginPct / 100;
+    const edge = edgePct / 100;
+
+    // p — истинная вероятность события, на которое поставили (старая мультипликативная формула)
+    const p = (1 + edge) / kWork;
+
+    if (p <= 0 || p >= (1 + margin)) {
+      err.textContent = 'Невозможные входные данные — проверьте маржу и доходность';
+      err.style.display = 'block';
+      document.getElementById('results').classList.remove('visible');
+      return;
+    }
+
+    // сырые вероятности (с равномерной маржой)
+    const q1 = p * (1 + margin);          // событие, на которое поставили
+    const q2 = (1 + margin) - q1;          // второе событие
+
+    const kPin1 = 1 / q1; // коэффициент Pinnacle на ваше событие
+    const kPin2 = 1 / q2; // коэффициент Pinnacle на второе событие
+
+    err.style.display = 'none';
+
+    // Маржа (проверка)
+    document.getElementById('r-margin').textContent = ((q1 + q2 - 1) * 100).toFixed(2) + '%';
+
+    // Power method на найденных qs
+    const qs = [q1, q2];
+    const k = findK(qs);
+    const ps = qs.map(q => Math.pow(q, k));
+    document.getElementById('r-k').textContent = k.toFixed(4).replace('.', ',');
+
+    // Колонки: коэффициенты Pinnacle + новые вероятности/безубыточность
+    const colsEl = document.getElementById('res-cols');
+    colsEl.innerHTML = '';
+    const labels = ['Ваше событие', 'Другое событие'];
+    const kPins = [kPin1, kPin2];
+    ps.forEach((p2, i) => {
+      const col = document.createElement('div');
+      col.className = 'res-col';
+      col.innerHTML = `
+        <div class="res-col-header">${labels[i]}</div>
+        <div class="res-box" style="margin-bottom:4px;">
+          <div class="res-box-sub" style="margin-top:0;">Pinnacle</div>
+          <div class="res-box-main">${kPins[i].toFixed(3)}</div>
+        </div>
+        <div class="res-box">
+          <div class="res-box-main">${(1/p2).toFixed(2)}</div>
+          <div class="res-box-sub">${(p2*100).toFixed(1)}%</div>
+        </div>`;
+      colsEl.appendChild(col);
+    });
+
+    // Новая доходность по Power-методу для исходного рабочего кэфа
+    const edgeColsEl = document.getElementById('res-edge-cols');
+    const edgeLabel = document.getElementById('res-bottom-label');
+    edgeColsEl.classList.remove('hidden');
+    edgeLabel.classList.remove('hidden');
+    edgeLabel.textContent = 'Доходность (Power)';
+    edgeColsEl.innerHTML = '';
+
+    let anyPositive = false;
+    // Доходность считаем только для "вашего события" с тем же рабочим кэфом
+    const newEdge = (kWork * ps[0] - 1) * 100;
+    if (newEdge > 0) anyPositive = true;
+    const c = edgeColor(newEdge);
+    const sign = newEdge >= 0 ? '+' : '';
+    const col = document.createElement('div');
+    col.className = 'res-edge-col';
+    col.innerHTML = `<div class="edge-box" style="background:${c.bg};color:${c.text};border-color:${c.border};text-shadow:${c.shadow}">${sign}${newEdge.toFixed(1)}%</div>`;
+    edgeColsEl.appendChild(col);
+
+    // вторая колонка — пустая заглушка для выравнивания
+    const col2 = document.createElement('div');
+    col2.className = 'res-edge-col';
+    col2.innerHTML = `<div class="edge-box" style="background:transparent;border-color:var(--border);color:var(--text-muted)">—</div>`;
+    edgeColsEl.appendChild(col2);
+
+    const verdict = document.getElementById('verdict');
+    if (anyPositive) {
+      verdict.style.display = 'none';
+    } else {
+      verdict.textContent = '✗ NO VALUE';
+      verdict.className = 'verdict no';
+      verdict.style.display = 'block';
+    }
+
+    document.getElementById('results').classList.add('visible');
+  }
+
   function clearAll() {
-    ['k2_1','k2_2','k3_1','k3_x','k3_2','ksng'].forEach(id => {
+    ['k2_1','k2_2','k3_1','k3_x','k3_2','ksng','rev_k','rev_margin','rev_edge'].forEach(id => {
       document.getElementById(id).value = '';
     });
     document.getElementById('error').style.display = 'none';
     document.getElementById('results').classList.remove('visible');
-    document.getElementById('k2_1').focus();
+    document.getElementById('res-bottom-label').textContent = 'Доходность';
+    if (currentMode === 'rev') {
+      document.getElementById('rev_k').focus();
+    } else {
+      document.getElementById('k2_1').focus();
+    }
   }
 
   document.addEventListener('keydown', e => { if (e.key==='Enter') calculate(); });
