@@ -96,6 +96,7 @@
   /* CENTER */
   .center { flex: 1; display: flex; align-items: center; justify-content: center; }
   .form-wrap { width: 100%; max-width: 400px; text-align: center; }
+  .form-wrap.split-mode { max-width: 700px; }
 
   .pinnacle-row { display: flex; gap: 8px; margin-bottom: 14px; }
   .pin-field { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; }
@@ -175,6 +176,91 @@
   .two-way { display: block; }
   .three-way { display: none; }
   .reverse-way { display: none; }
+  .split-way { display: none; }
+
+  /* PASSWORD OVERLAY */
+  .pw-overlay {
+    position: fixed; inset: 0; z-index: 1000;
+    background: var(--bg);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+  }
+  .pw-overlay.hidden { display: none; }
+  .pw-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); }
+  .pw-input {
+    background: var(--input-bg); border: 1px solid var(--border2); color: var(--text);
+    font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700;
+    padding: 11px 16px; width: 200px; outline: none; text-align: center;
+    border-radius: 0; -webkit-appearance: none; -moz-appearance: textfield;
+    letter-spacing: 6px;
+  }
+  .pw-input::-webkit-outer-spin-button,
+  .pw-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .pw-input:focus { border-color: #4a6a8a; }
+  .pw-error { color: #ff3b3b; font-size: 11px; min-height: 16px; }
+
+  /* SPLIT BET TABLE */
+  .split-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 15px; }
+  .split-table th {
+    font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted);
+    padding: 6px 8px; text-align: center; border-bottom: 1px solid var(--border2); font-weight: 400;
+  }
+  .split-table td { padding: 5px 4px; text-align: center; vertical-align: middle; }
+  .split-table td input[type="number"] {
+    font-size: 17px; padding: 10px 8px; width: 100%; min-width: 0;
+  }
+  .split-table .col-sum { width: 22%; }
+  .split-table .col-k   { width: 13%; }
+  .split-table .col-e   { width: 17%; }
+  .split-table .col-sep { width: 10px; padding: 0 !important; }
+  .split-table .col-sep-cell { width: 10px; padding: 0 4px !important; }
+  .split-table .th-sep  { width: 10px; padding: 0 !important; }
+  .td-sep-line {
+    width: 2px; background: var(--border2); height: 100%;
+    display: block; margin: 0 auto;
+  }
+  .split-table .td-marg { font-size: 13px; color: var(--text-muted); padding: 5px 6px; white-space: nowrap; }
+  .split-table .td-kval { font-size: 13px; color: var(--text-muted); padding: 5px 6px; white-space: nowrap; }
+  .split-table .td-num  { font-size: 12px; color: var(--text-muted); padding: 5px 6px; white-space: nowrap; }
+  .split-table .td-calc   { font-size: 16px; font-weight: 700; padding: 5px 10px; white-space: nowrap; }
+  .split-table .td-income { font-size: 16px; font-weight: 700; padding: 5px 10px; white-space: nowrap; }
+
+  /* sum display field */
+  .sum-display {
+    background: var(--input-bg); border: 1px solid var(--border2); color: var(--text);
+    font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 700;
+    padding: 10px 8px; width: 100%; text-align: center; cursor: text;
+    outline: none; caret-color: var(--text);
+  }
+  .sum-display:focus { border-color: #4a6a8a; }
+  .split-row-del {
+    background: none; border: none; color: var(--text-muted); font-size: 18px;
+    cursor: pointer; padding: 2px 6px; transition: color 0.15s; line-height: 1;
+  }
+  .split-row-del:hover { color: #ff4444; }
+
+  /* split checkboxes inline with coeff */
+  .split-cb-wrap { display: flex; align-items: center; gap: 6px; }
+  .split-cb-wrap input[type="checkbox"] {
+    width: 17px; height: 17px; accent-color: #7dc87d; cursor: pointer;
+    margin: 0; padding: 0; flex-shrink: 0;
+  }
+  .split-cb-wrap input[type="number"] { flex: 1; }
+  .split-add-btn {
+    background: none; border: 1px solid var(--border2); color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px;
+    padding: 6px 14px; cursor: pointer; transition: all 0.15s; width: 100%; margin-bottom: 14px;
+    border-radius: 0;
+  }
+  .split-add-btn:hover { color: var(--text); border-color: var(--text-muted); }
+  .split-total {
+    border-top: 1px solid var(--border2); padding-top: 10px; margin-bottom: 14px;
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: space-between;
+  }
+  .split-total-cell { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; min-width: 70px; }
+  .split-total-lbl { font-size: 8px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); }
+  .split-total-val { font-size: 16px; font-weight: 700; color: var(--text); }
+  .split-total-val.edge-pos { color: #8fcc55; }
+  .split-total-val.edge-neg { color: #ff4444; }
 
   /* Reverse mode result row for pinnacle coefficients */
   .rev-pin-result { display: flex; gap: 6px; margin-bottom: 12px; }
@@ -182,6 +268,15 @@
 </style>
 </head>
 <body data-theme="dark">
+
+<!-- PASSWORD OVERLAY -->
+<div class="pw-overlay hidden" id="pw-overlay">
+  <div class="pw-label">Введите пароль</div>
+  <input class="pw-input" type="password" id="pw-input" maxlength="10" placeholder="••••"
+    oninput="checkPw()" onkeydown="if(event.key==='Enter')checkPw(true)">
+  <div class="pw-error" id="pw-error"></div>
+</div>
+
 <div class="page">
 
   <div class="top-bar">
@@ -191,7 +286,9 @@
       <span class="mode-sep">или</span>
       <button class="mode-btn" onclick="setMode(3)">Расширенный</button>
       <span class="mode-sep">или</span>
-      <button class="mode-btn" onclick="setMode('rev')">Обратный</button>
+      <button class="mode-btn" onclick="tryMode('rev')">Обратный</button>
+      <span class="mode-sep">или</span>
+      <button class="mode-btn" onclick="tryMode('split')">Дробная</button>
     </div>
     <div class="theme-group">
       <span class="theme-lbl">Тема:</span>
@@ -252,6 +349,48 @@
         </div>
       </div>
 
+      <!-- SPLIT BET MODE -->
+      <div class="split-way" id="split-way">
+        <table class="split-table" id="split-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Сумма</th>
+              <th>Раб. К</th>
+              <th class="th-sep"></th>
+              <th>Эт. К1</th>
+              <th>Эт. К2</th>
+              <th>Маржа</th>
+              <th>К</th>
+              <th>Доход-ть</th>
+              <th>Доход</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="split-tbody"></tbody>
+        </table>
+        <button class="split-add-btn" onclick="splitAddRow()">+ Добавить строку</button>
+        <button class="split-add-btn" onclick="clearAll()" style="margin-bottom:6px;color:var(--text-muted)">× Очистить</button>
+        <div class="split-total" id="split-total">
+          <div class="split-total-cell">
+            <div class="split-total-lbl">Итого сумма</div>
+            <div class="split-total-val" id="st-sum">—</div>
+          </div>
+          <div class="split-total-cell">
+            <div class="split-total-lbl">Ср. Раб. К</div>
+            <div class="split-total-val" id="st-wk">—</div>
+          </div>
+          <div class="split-total-cell">
+            <div class="split-total-lbl">Доход-ть</div>
+            <div class="split-total-val" id="st-edge">—</div>
+          </div>
+          <div class="split-total-cell">
+            <div class="split-total-lbl">Доход</div>
+            <div class="split-total-val" id="st-income">—</div>
+          </div>
+        </div>
+      </div>
+
       <div class="section-label" id="work-section-label">Рабочий коэффициент</div>
       <div class="work-block" id="work-block">
         <input type="number" id="ksng" placeholder="5.25" step="0.001" inputmode="decimal">
@@ -289,6 +428,10 @@
 <script>
   let currentMode = 2;
   let currentTheme = 'dark';
+  const PROTECTED_MODES = ['rev', 'split'];
+  const PASSWORD = '7621';
+  let unlocked = false;
+  let pendingMode = null;
 
   function setTheme(t) {
     currentTheme = t;
@@ -303,18 +446,49 @@
   const saved = localStorage.getItem('theme');
   if (saved) setTheme(saved);
 
+  function tryMode(n) {
+    if (PROTECTED_MODES.includes(n) && !unlocked) {
+      pendingMode = n;
+      const overlay = document.getElementById('pw-overlay');
+      overlay.classList.remove('hidden');
+      document.getElementById('pw-input').value = '';
+      document.getElementById('pw-error').textContent = '';
+      setTimeout(() => document.getElementById('pw-input').focus(), 50);
+    } else {
+      setMode(n);
+    }
+  }
+
+  function checkPw(force) {
+    const val = document.getElementById('pw-input').value;
+    if (val === PASSWORD) {
+      unlocked = true;
+      document.getElementById('pw-overlay').classList.add('hidden');
+      if (pendingMode !== null) { setMode(pendingMode); pendingMode = null; }
+    } else if (force) {
+      document.getElementById('pw-error').textContent = 'Неверный пароль';
+      document.getElementById('pw-input').value = '';
+    }
+  }
+
   function setMode(n) {
     currentMode = n;
-    document.querySelectorAll('.mode-btn').forEach((b,i) => {
-      b.classList.toggle('active', (i===0&&n===2)||(i===1&&n===3)||(i===2&&n==='rev'));
+    const btns = document.querySelectorAll('.mode-btn');
+    btns.forEach((b,i) => {
+      b.classList.toggle('active',
+        (i===0&&n===2)||(i===1&&n===3)||(i===2&&n==='rev')||(i===3&&n==='split'));
     });
     document.querySelector('.two-way').style.display = n===2 ? 'block' : 'none';
     document.querySelector('.three-way').style.display = n===3 ? 'block' : 'none';
     document.querySelector('.reverse-way').style.display = n==='rev' ? 'block' : 'none';
+    document.querySelector('.split-way').style.display = n==='split' ? 'block' : 'none';
 
     const workLabel = document.getElementById('work-section-label');
     const workBlock = document.getElementById('work-block');
-    if (n === 'rev') {
+    const btnRow = document.querySelector('.btn-row');
+    const results = document.getElementById('results');
+
+    if (n === 'rev' || n === 'split') {
       workLabel.style.display = 'none';
       workBlock.style.display = 'none';
     } else {
@@ -322,7 +496,161 @@
       workBlock.style.display = 'block';
     }
 
-    document.getElementById('results').classList.remove('visible');
+    const formWrap = document.querySelector('.form-wrap');
+    if (n === 'split') {
+      formWrap.classList.add('split-mode');
+      btnRow.style.display = 'none';
+      results.classList.remove('visible');
+      if (document.getElementById('split-tbody').rows.length === 0) {
+        splitAddRow(); splitAddRow();
+      }
+    } else {
+      formWrap.classList.remove('split-mode');
+      btnRow.style.display = 'flex';
+    }
+
+    results.classList.remove('visible');
+  }
+
+  /* ── SPLIT BET ── */
+  let splitRowId = 0;
+
+  function splitAddRow() {
+    const tbody = document.getElementById('split-tbody');
+    const id = ++splitRowId;
+    const tr = document.createElement('tr');
+    tr.id = 'sr-' + id;
+    tr.innerHTML = `
+      <td class="td-num">${tbody.rows.length + 1}</td>
+      <td class="col-sum"><input type="text" id="ss-${id}" placeholder="250 000" inputmode="numeric" oninput="fmtSum(this)" data-raw="" class="sum-display"></td>
+      <td class="col-k"><input type="number" id="sw-${id}" placeholder="2.75" step="0.001" inputmode="decimal" oninput="splitCalc()"></td>
+      <td class="col-sep-cell"><span class="td-sep-line"></span></td>
+      <td class="col-e">
+        <div class="split-cb-wrap">
+          <input type="checkbox" id="scb1-${id}" onchange="splitCbChange(${id},1)" checked>
+          <input type="number" id="se1-${id}" placeholder="1.43" step="0.001" inputmode="decimal" oninput="splitCalc()">
+        </div>
+      </td>
+      <td class="col-e">
+        <div class="split-cb-wrap">
+          <input type="number" id="se2-${id}" placeholder="2.85" step="0.001" inputmode="decimal" oninput="splitCalc()">
+          <input type="checkbox" id="scb2-${id}" onchange="splitCbChange(${id},2)">
+        </div>
+      </td>
+      <td class="td-marg" id="smrg-${id}">—</td>
+      <td class="td-kval" id="skvl-${id}">—</td>
+      <td class="td-calc" id="syd-${id}">—</td>
+      <td class="td-income" id="sinc-${id}">—</td>
+      <td><button class="split-row-del" onclick="splitDelRow(${id})">×</button></td>`;
+    tbody.appendChild(tr);
+    splitCalc();
+  }
+
+  function fmtSum(el) {
+    const raw = el.value.replace(/\D/g, '');
+    el.dataset.raw = raw;
+    el.value = raw ? parseInt(raw).toLocaleString('ru-RU') : '';
+    splitCalc();
+  }
+
+  function splitCbChange(id, which) {
+    // radio-like: only one can be checked
+    const cb1 = document.getElementById('scb1-'+id);
+    const cb2 = document.getElementById('scb2-'+id);
+    if (which === 1) { cb2.checked = false; }
+    else             { cb1.checked = false; }
+    splitCalc();
+  }
+
+  function splitDelRow(id) {
+    const tr = document.getElementById('sr-' + id);
+    if (tr) tr.remove();
+    // renumber
+    document.querySelectorAll('#split-tbody tr .td-num').forEach((td, i) => td.textContent = i + 1);
+    splitCalc();
+  }
+
+  function splitCalc() {
+    const rows = document.querySelectorAll('#split-tbody tr');
+    let totalSum = 0, totalIncome = 0, wkSum = 0, validRows = 0;
+
+    rows.forEach(tr => {
+      const id = tr.id.replace('sr-', '');
+      const sEl = document.getElementById('ss-'+id);
+      const s   = sEl ? (parseFloat(sEl.dataset.raw) || 0) : 0;
+      const w   = parseFloat(((document.getElementById('sw-'+id)||{}).value||'').replace(',','.'));
+      const e1  = parseFloat(((document.getElementById('se1-'+id)||{}).value||'').replace(',','.'));
+      const e2  = parseFloat(((document.getElementById('se2-'+id)||{}).value||'').replace(',','.'));
+      const cb1 = (document.getElementById('scb1-'+id)||{}).checked;
+      const cb2 = (document.getElementById('scb2-'+id)||{}).checked;
+      const ydEl  = document.getElementById('syd-'+id);
+      const incEl = document.getElementById('sinc-'+id);
+      if (!ydEl) return;
+
+      if (!s || !w || !e1 || !e2 || w < 1.001 || e1 < 1.001 || e2 < 1.001 || (!cb1 && !cb2)) {
+        ydEl.textContent = '—'; incEl.textContent = '—';
+        const mrgEl = document.getElementById('smrg-'+id);
+        const kvlEl = document.getElementById('skvl-'+id);
+        if (mrgEl) mrgEl.textContent = '—';
+        if (kvlEl) kvlEl.textContent = '—';
+        return;
+      }
+
+      // Power method
+      const q1 = 1 / e1, q2 = 1 / e2;
+      const k = findK([q1, q2]);
+      const margin = (q1 + q2 - 1) * 100;
+
+      // показываем маржу и К
+      const mrgEl = document.getElementById('smrg-'+id);
+      const kvlEl = document.getElementById('skvl-'+id);
+      if (mrgEl) mrgEl.textContent = margin.toFixed(2) + '%';
+      if (kvlEl) kvlEl.textContent = k.toFixed(4).replace('.', ',');
+      const p1 = Math.pow(q1, k);
+      const p2 = Math.pow(q2, k);
+      const p_true = cb1 ? p1 : p2;
+
+      const edge = (w * p_true - 1) * 100;
+      // Доход = Сумма × Доходность
+      const income = s * edge / 100;
+
+      const sign = edge >= 0 ? '+' : '';
+      ydEl.textContent = sign + edge.toFixed(2) + '%';
+      ydEl.style.color  = edge >= 0 ? '#8fcc55' : '#ff4444';
+      incEl.textContent = formatRub(Math.round(income));
+      incEl.style.color = income >= 0 ? '#8fcc55' : '#ff4444';
+
+      totalSum += s;
+      totalIncome += income;
+      wkSum += s * w;
+      validRows++;
+    });
+
+    const stSum    = document.getElementById('st-sum');
+    const stWk     = document.getElementById('st-wk');
+    const stEdge   = document.getElementById('st-edge');
+    const stIncome = document.getElementById('st-income');
+
+    if (validRows === 0) {
+      stSum.textContent = '—'; stWk.textContent = '—';
+      stEdge.textContent = '—'; stIncome.textContent = '—';
+      stEdge.className = 'split-total-val';
+      stIncome.className = 'split-total-val';
+      return;
+    }
+    const avgWk = wkSum / totalSum;
+    const totalEdgePct = totalIncome / totalSum * 100;
+    const sign = totalEdgePct >= 0 ? '+' : '';
+    stSum.textContent    = formatRub(Math.round(totalSum));
+    stWk.textContent     = avgWk.toFixed(3).replace('.', ',');
+    stEdge.textContent   = sign + totalEdgePct.toFixed(2) + '%';
+    stEdge.className     = 'split-total-val ' + (totalEdgePct >= 0 ? 'edge-pos' : 'edge-neg');
+    stIncome.textContent = formatRub(Math.round(totalIncome));
+    stIncome.className   = 'split-total-val ' + (totalIncome >= 0 ? 'edge-pos' : 'edge-neg');
+  }
+
+  function formatRub(n) {
+    return n.toLocaleString('ru-RU') + ' ₽';
   }
 
   function findK(qs) {
@@ -339,11 +667,11 @@
   }
 
   function edgeColor(edge) {
-    if (edge >= 10) return { bg: '#0d3a0d', text: '#5fff9f', border: '#1a6a1a', shadow: '0 0 8px rgba(80,255,140,0.5)' };
-    if (edge >= 3)  return { bg: '#1a3a10', text: '#a0f060', border: '#2a6a1a', shadow: '0 0 6px rgba(120,220,60,0.4)' };
-    if (edge >= 0)  return { bg: '#2a3a10', text: '#d0e860', border: '#3a6a1a', shadow: '0 0 5px rgba(180,220,60,0.3)' };
+    if (edge >= 10) return { bg: '#0d3a0d', text: '#6dbf6d', border: '#1a6a1a', shadow: '0 0 8px rgba(80,200,80,0.4)' };
+    if (edge >= 3)  return { bg: '#1a3a10', text: '#8fcc55', border: '#2a6a1a', shadow: '0 0 6px rgba(100,190,50,0.3)' };
+    if (edge >= 0)  return { bg: '#2a3a10', text: '#b8d44a', border: '#3a6a1a', shadow: '0 0 5px rgba(160,200,50,0.25)' };
     if (edge >= -1) return { bg: '#3a3200', text: '#f0cc50', border: '#6a5200', shadow: '0 0 5px rgba(220,180,40,0.3)' };
-    return { bg: '#3a0d0d', text: '#ff6060', border: '#6a1a1a', shadow: '0 0 8px rgba(255,60,60,0.4)' };
+    return { bg: '#3a0d0d', text: '#ff4444', border: '#7a1a1a', shadow: '0 0 8px rgba(255,50,50,0.5)' };
   }
 
   function getVal(id) {
@@ -501,13 +829,8 @@
       col.className = 'res-col';
       col.innerHTML = `
         <div class="res-col-header">${labels[i]}</div>
-        <div class="res-box" style="margin-bottom:4px;">
-          <div class="res-box-sub" style="margin-top:0;">Pinnacle</div>
-          <div class="res-box-main">${kPins[i].toFixed(3)}</div>
-        </div>
         <div class="res-box">
-          <div class="res-box-main">${(1/p2).toFixed(2)}</div>
-          <div class="res-box-sub">${(p2*100).toFixed(1)}%</div>
+          <div class="res-box-main">${kPins[i].toFixed(3).replace('.', ',')}</div>
         </div>`;
       colsEl.appendChild(col);
     });
@@ -558,12 +881,17 @@
     document.getElementById('res-bottom-label').textContent = 'Доходность';
     if (currentMode === 'rev') {
       document.getElementById('rev_k').focus();
+    } else if (currentMode === 'split') {
+      // clear split rows
+      document.getElementById('split-tbody').innerHTML = '';
+      splitRowId = 0;
+      splitAddRow(); splitAddRow();
     } else {
       document.getElementById('k2_1').focus();
     }
   }
 
-  document.addEventListener('keydown', e => { if (e.key==='Enter') calculate(); });
+  document.addEventListener('keydown', e => { if (e.key==='Enter' && currentMode !== 'split') calculate(); });
 </script>
 </body>
 </html>
