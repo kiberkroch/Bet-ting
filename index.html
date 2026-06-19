@@ -615,7 +615,7 @@
       const income = s * edge / 100;
 
       const sign = edge >= 0 ? '+' : '';
-      ydEl.textContent = sign + edge.toFixed(2) + '%';
+      ydEl.textContent = sign + edge.toFixed(2).replace('.', ',') + ' %';
       ydEl.style.color  = edge >= 0 ? '#8fcc55' : '#ff4444';
       incEl.textContent = formatRub(Math.round(income));
       incEl.style.color = income >= 0 ? '#8fcc55' : '#ff4444';
@@ -642,8 +642,8 @@
     const totalEdgePct = totalIncome / totalSum * 100;
     const sign = totalEdgePct >= 0 ? '+' : '';
     stSum.textContent    = formatRub(Math.round(totalSum));
-    stWk.textContent     = avgWk.toFixed(3).replace('.', ',');
-    stEdge.textContent   = sign + totalEdgePct.toFixed(2) + '%';
+    stWk.textContent     = avgWk.toFixed(6).replace('.', ',');
+    stEdge.textContent   = sign + totalEdgePct.toFixed(2).replace('.', ',') + ' %';
     stEdge.className     = 'split-total-val ' + (totalEdgePct >= 0 ? 'edge-pos' : 'edge-neg');
     stIncome.textContent = formatRub(Math.round(totalIncome));
     stIncome.className   = 'split-total-val ' + (totalIncome >= 0 ? 'edge-pos' : 'edge-neg');
